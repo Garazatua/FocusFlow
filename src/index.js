@@ -1,12 +1,14 @@
 import "./styles.css";
 import { setId } from "./currentId.js";
 import formHandler from "./formHandler.js";
+import dom from "./dom.js";
 import createProject from './project.js';
 import projectManager from './projectManager.js';
 import todoManager from "./todoManager.js";
 import storage from './storage.js';
 
 storage.loadProjects();
+
 console.log("Proyectos cargados:", projectManager.getAllProjects());
 
 if (projectManager.getAllProjects().length === 0) {
@@ -16,4 +18,12 @@ if (projectManager.getAllProjects().length === 0) {
 }
 
 document.addEventListener("DOMContentLoaded", formHandler.init);
+document.addEventListener("DOMContentLoaded", dom.renderProjects());
+document.addEventListener("DOMContentLoaded", () => {
+  const addProjectBtn = document.querySelector("#add-project-btn");
+  const cancelBtn = document.querySelector("#cancel-project-btn");
+  addProjectBtn.addEventListener("click", dom.showProjectForm);
+  cancelBtn.addEventListener("click", dom.resetProjectForm);
+})
+
 

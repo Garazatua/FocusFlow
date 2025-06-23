@@ -117,12 +117,30 @@
   /* -------------------- PROJECTS -------------------- */
   .project-btn {
     width: 100%;
+    justify-content: space-between;
     overflow: hidden;
     white-space: nowrap;
   }
   .project-btn svg {
     flex-shrink: 0;
   }
+  .project-info{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+  }
+  .project-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+  .eliminate-project{
+    height: 1.2rem;
+    fill: var(--clr-project-gray);
+}
+  
   
   /* -------------------- FORMULARIO NUEVO PROYECTO -------------------- */
   #name {

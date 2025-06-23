@@ -16,7 +16,8 @@ const formHandler = (function() {
         projectManager.addProject(newProject);
         storage.saveProjects();
         dom.populateProjectOptions();
-        createProjectForm.reset();
+        dom.renderProjects();
+        dom.resetProjectForm();
     }
     function submitTodoForm(event){
         event.preventDefault();
