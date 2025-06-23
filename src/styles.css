@@ -1,0 +1,210 @@
+:root {
+    --clr-bg: #ffffff;
+    --clr-sidebar: #FCFAF8;
+    --clr-border: #eee;
+    --clr-text-dark: #333333b7;
+    --clr-accent: #dc4c3e;
+    --clr-accent-dark: #a81f00;
+    --clr-accent-bg: #ffdfd4;
+    --clr-project-gray: #9A9498;
+    --radius: 0.3rem;
+    --font-main: 'Inter', sans-serif;
+  }
+  
+  /* -------------------- RESET -------------------- */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  * {
+    margin: 0;
+  }
+  body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--clr-bg);
+    font-family: var(--font-main);
+  }
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+  input, button, textarea, select {
+    font: inherit;
+  }
+  p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      interpolate-size: allow-keywords;
+    }
+  }
+  
+  /* -------------------- LAYOUT -------------------- */
+  #app {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* -------------------- SIDEBAR -------------------- */
+  #sidebar {
+    width: 350px;
+    background-color: var(--clr-sidebar);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--clr-border);
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  #sidebar h1:first-child {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  #sidebar h2 {
+    font-size: 1rem;
+    color: var(--clr-text-dark);
+  }
+  
+  #project-list {
+    list-style: none;
+    width: 100%;
+    padding: 0;
+  }
+  
+  /* -------------------- BOTONES GENERALES -------------------- */
+  .btn {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.1s ease;
+    font-size: 1rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+  .btn svg {
+    width: 1.6rem;
+  }
+  .btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .tab, .project-btn {
+    fill: #666;
+  }
+  
+  /* -------------------- ADD TASK BTN (SIDEBAR) -------------------- */
+  #add-task-btn {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: left;
+    border-radius: var(--radius);
+    color: var(--clr-accent-dark);
+  }
+  #add-task-btn svg {
+    fill: var(--clr-accent);
+  }
+  
+  /* -------------------- PROJECTS -------------------- */
+  .project-btn {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .project-btn svg {
+    flex-shrink: 0;
+  }
+  
+  /* -------------------- FORMULARIO NUEVO PROYECTO -------------------- */
+  #name {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+  }
+  #create-project input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+  }
+  #create-project input:focus {
+    outline: none;
+  }
+  #create-project div {
+    display: flex;
+    justify-content: flex-end;
+  }
+  #create-project button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0.2rem 1rem;
+    border-radius: var(--radius);
+  }
+  #create-project button:last-child {
+    background-color: #d11507;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  /* -------------------- MAIN -------------------- */
+  #main {
+    width: 100%;
+  }
+  #main-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+  }
+  #current-view-title {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* -------------------- OTROS BOTONES -------------------- */
+  #add-project-btn {
+    color: var(--clr-project-gray);
+  }
+  #add-project-svg {
+    fill: var(--clr-project-gray);
+  }
+  #add-task-main-btn {
+    fill: var(--clr-accent);
+  }
+  #add-task-main-btn:hover {
+    color: var(--clr-accent-dark);
+    background-color: transparent;
+  }
+  
+  /* -------------------- ESTADOS -------------------- */
+  .hidden {
+    display: none;
+  }
+  .active {
+    fill: var(--clr-accent);
+    background-color: var(--clr-accent-bg);
+    border-radius: var(--radius);
+    color: var(--clr-accent-dark);
+  }
+  .active:hover {
+    background-color: var(--clr-accent-bg);
+  }
+  
+  /* -------------------- NAV -------------------- */
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 2rem;
+  }
