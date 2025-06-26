@@ -3,6 +3,8 @@ import createProject from './project.js';
 import projectManager from './projectManager.js';
 import todoManager from "./todoManager.js";
 import storage from './storage.js';
+import {format, parse} from 'date-fns';
+import currentId from './currentId.js';
 
 
 const formHandler = (function() {
@@ -24,7 +26,10 @@ const formHandler = (function() {
         const dialog = document.querySelector("#create-todo-dialog");
         const title = document.querySelector("#todo-title").value;
         const description = document.querySelector("#todo-description").value;
-        const dueDate = document.querySelector("#todo-date").value;
+        const rawData = document.querySelector("#todo-date").value;
+        console.log(rawData);
+        const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+        console.log(dueDate);
         const priority = document.querySelector("#todo-priority").value;
         const projectId = document.querySelector("#todo-project").value;
 
@@ -33,6 +38,10 @@ const formHandler = (function() {
             console.log("TODO created", todo);
             createTodoForm.reset();
             dialog.close();
+            const currentProjectId = currentId.get();
+            if (currentProjectId === projectId){
+            dom.renderProjectPage(projectId);
+            }
         }
         else {
             console.error("No se pudo crear el TODO");

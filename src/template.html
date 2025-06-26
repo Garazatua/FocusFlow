@@ -12,32 +12,12 @@
           <button id="add-task-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg> Add task</button>
       
           <nav>
-            <button class="tab btn active" data-id="inbox" id="inbox-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,15H15A3,3 0 0,1 12,18A3,3 0 0,1 9,15H5V5H19M19,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg>Inbox</button>
-            <button class="tab btn" data-id="completed" id="completed-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg> Completed</button>
+            <button class="tab btn projects active" data-id="inbox" id="inbox-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,15H15A3,3 0 0,1 12,18A3,3 0 0,1 9,15H5V5H19M19,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg>Inbox</button>
+            <button class="tab btn projects" data-id="completed" id="completed-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg> Completed</button>
           </nav>
       
           <h2>My Projects</h2>
-          <ul id="project-list">
-            <!-- Se llena con JS uso dos ejemplos pa ver como quedaria nomas-->
-            <li>
-                <button class="btn project-btn">
-                    <span class="project-info">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" /></svg>
-                        <span class="project-name">Project 1 cksajfba sjk bfak kfajbshk fbaok kjfbaksjfpfbahb f</span>
-                    </span>
-                        <svg class="hidde eliminate-project" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" /></svg> 
-                </button>
-            </li>
-            <li>
-                <button class="btn project-btn">
-                    <span class="project-info">
-                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" /></svg>
-                     <span class="project-name"> Project 2</span>
-                    </span>
-                    <svg  class="eliminate-project" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" /></svg> 
-                </button>
-            </li>
-          </ul> 
+          <ul id="project-list"></ul> 
       
           <button id="add-project-btn" class="btn"><svg id="add-project-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg> Add a Project</button>
 
@@ -53,28 +33,94 @@
         <main id="main">
             <div id="main-content">
                 <h2 id="current-view-title">Inbox</h2>
-                <ul id="todo-list"></ul> <!-- Se llena con JS -->
+                <ul id="todo-list">
+                    <li class="todo">
+                        <div class="todo-left">
+                          <span class="priority low"><svg class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg></span>
+                          <div class="todo-texts">
+                            <p class="todo-title">Go to the gym (Push Day)</p>
+                            <p class="todo-date">Due: 25/06/2025</p>
+                          </div>
+                        </div>
+                        <div class="todo-actions">
+                            <svg class="hidde todo-action" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19H5V5H12V3H5M17.78,4C17.61,4 17.43,4.07 17.3,4.2L16.08,5.41L18.58,7.91L19.8,6.7C20.06,6.44 20.06,6 19.8,5.75L18.25,4.2C18.12,4.07 17.95,4 17.78,4M15.37,6.12L8,13.5V16H10.5L17.87,8.62L15.37,6.12Z" /></svg>
+                            <svg class="hidde todo-action" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+                            <svg class="hidde todo-action" width="20px"xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" /></svg>
+                        </div>
+                    </li>
+                    <li>
+                        <form class="todo-form">
+                            <div class="todo-extended">
+                              <textarea class="todo-title-expanded" placeholder="Go to the fckin GYM" disabled></textarea>
+                              <textarea class="todo-description" placeholder="Description" disabled></textarea>
+                          
+                              <div class="todo-options">
+                                <label> 
+                                  <span class="todo-label">Due:</span>
+                                  <input type="date" id="todo-date" class="todo-date" required disabled/>
+                                </label>
+                                <label > 
+                                  <span class="todo-label">Priority:</span>
+                                  <select id="todo-priority" disabled>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                  </select>
+                                </label>
+                              </div>
+                            
+                            <div class="todo-expanded-actions">
+                              <select>
+                                  <!-- Esto lo vamos a poblar con JS -->
+                              </select>
+                          
+                              <div class="edit-btn-container">
+                                <button type="button" class="back-btn">Back</button>
+                                <button type="button" class="edit-btn">Edit</button>
+                                <button type="button" class="cancel-btn hidden">Cancel</button>
+                                <button type="submit" class="save-btn hidden">Save</button>
+                              </div>
+                            </div>
+                            </div>
+                          </form>
+                    </li>
+                </ul> <!-- Se llena con JS -->
                 <button id="add-task-main-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>Add Task</button>
             </div>
         </main>
     </div>
 
-    <dialog id="create-todo-dialog">
-    <form id="create-todo">
-        <input type="text" id="todo-title" placeholder="Título" required />
-        <input type="text" id="todo-description" placeholder="Descripción" />
-        <input type="date" id="todo-date" required />
-        <select id="todo-priority">
-        <option value="low">Baja</option>
-        <option value="medium">Media</option>
-        <option value="high">Alta</option>
-        </select>
+    <dialog id="create-todo-dialog" >
+    <form id="create-todo" class="todo-form">
+      <div class="todo-extended">
+        <textarea class="todo-title-expanded" id="todo-title" placeholder="Title" required></textarea>
+        <textarea class="todo-description" id="todo-description" placeholder="Description"></textarea>
 
-        <select id="todo-project">
+        <div class="todo-options">
+          <label > 
+            <span class="todo-label">Due:</span>
+            <input type="date" id="todo-date" class="todo-date" required/>
+          </label>
+          <label > 
+            <span class="todo-label">Priority:</span>
+            <select id="todo-priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="todo-expanded-actions">
+          <select id="todo-project">
             <!-- Esto lo vamos a poblar con JS -->
         </select>
-
-        <button type="submit">Agregar Todo</button>
+        <div class="edit-btn-container">
+          <button class="cancel-btn"type="button" id="close-task-form">Cancel</button>
+          <button class="save-btn"type="submit">Add Task</button>
+        </div>
+        </div>
+      </div>
     </form>
     </dialog>
 </body>

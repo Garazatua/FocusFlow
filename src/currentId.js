@@ -1,11 +1,12 @@
-let currentId = null;
+let currentProjectId = null;
 
-function setId(id){
-    currentId = id;
+const currentId = {
+  get() {
+    return currentProjectId;
+  },
+  set(id) {
+    currentProjectId = id;
+  }
 };
 
-function getId(){
-    return currentId;
-};
-
-export {setId, getId}
+export default currentId;

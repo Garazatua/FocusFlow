@@ -22,7 +22,7 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     background-color: var(--clr-bg);
-    font-family: var(--font-main);
+    font-family: 'Twemoji Country Flags', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple Color Emoji", Helvetica, Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";;
   }
   img, picture, video, canvas, svg {
     display: block;
@@ -120,6 +120,7 @@
     justify-content: space-between;
     overflow: hidden;
     white-space: nowrap;
+    margin: 0.2rem 0;
   }
   .project-btn svg {
     flex-shrink: 0;
@@ -148,6 +149,11 @@
     border: none;
     padding: 0.5rem;
   }
+
+  #create-project {
+    margin-top: 0.5rem;
+  }
+
   #create-project input {
     width: 100%;
     padding: 0.5rem;
@@ -181,7 +187,7 @@
     width: 100%;
   }
   #main-content {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem;
     width: 100%;
@@ -225,4 +231,243 @@
     flex-direction: column;
     gap: 0.2rem;
     margin-bottom: 2rem;
+  }
+
+  .todo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--clr-accent);
+    background-color: #fff;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    min-width: 0;
+  }
+  .todo:hover{
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    border-radius: 0.5rem;
+  }
+  
+  .todo-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .priority {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    padding: 4px;
+    cursor: pointer;
+  }
+  
+  .priority.low { background-color: green; fill: white;}
+  .priority.medium { background-color: orange; fill: white; }
+  .priority.high { background-color: red; fill: white; }
+  
+  .todo-texts {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .todo-title { 
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .todo-date {
+    color: #888;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .todo-actions{ 
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .todo-action{
+    cursor: pointer;
+    width: 1.4rem;
+    fill: var(--clr-project-gray);
+  }
+
+  .todo-action:hover{
+    transform: scale(1.2);
+  }
+
+  #todo-list{
+    padding: 0px;
+    list-style: none;
+}
+    
+/* WAZAAA */
+.todo-form {
+    padding:1rem;
+    border-radius: 1rem;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+    border: 1px solid var(--clr-project-gray);
+    margin-bottom: 1rem;
+  }
+
+  .todo-description{
+    margin-bottom: 1rem;
+  }
+  .todo-description, .todo-title-expanded {
+    width: 100%;
+    resize: none;
+    field-sizing: content;
+    border: none;
+    background: none;
+    font-size: 1rem;
+    max-height: 200px;
+    overflow: auto;
+  }
+
+  .todo-description:focus, .todo-title-expanded:focus{
+    outline: none;
+  }
+  .todo-title-expanded {
+    font-size: 1.3rem;
+    font-weight: bold;
+    border: none;
+    background: none;
+    max-height: 70px;   
+    width: 100%;
+  }
+  
+
+  
+ .todo-options{
+    display: flex;
+    gap: 1rem ;
+ }
+
+ .todo-options button, .todo-project-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1px solid var(--clr-project-gray);
+    border-radius: 4px;
+    color: var(--clr-project-gray);
+    padding: 0.2rem 0.5rem;
+ }
+ .todo-project-btn{
+    border: none;
+ }
+ 
+ .back-btn, .cancel-btn, .edit-btn, .save-btn{
+    background-color: var(--clr-border);
+    border: none;
+    border-radius: 4px;
+    color: var(--clr-text-dark);
+    font-weight: 500;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+ }
+
+ .edit-btn, .save-btn{
+    background-color: var(--clr-accent);
+    color: white;
+    font-weight: 600;
+}
+
+.edit-btn:hover, .save-btn:hover{
+background-color: #c3392c;
+}
+
+.back-btn:hover, .cancel-btn:hover{
+    background-color:   #e4e4e4;
+}
+.edit-btn-container{
+    display: flex;
+    gap: 0.5rem;
+}
+
+
+ .todo-form svg{
+    width: 1.2rem;
+    fill: var(--clr-project-gray);
+ }
+  
+ .todo-expanded-actions{
+    margin-top: 1rem;
+    border-top: 1px solid var(--clr-project-gray);
+    padding-top: 1rem ; 
+    display: flex;
+    justify-content: space-between;
+
+ }
+
+#create-todo-dialog {
+    border: none;
+    background: transparent;
+    margin: 10vh auto;
+    padding: 0px;
+    width: 500px;
+    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+    border-radius: 1rem;
+}
+
+#create-todo{
+    margin-bottom: 0px;
+    background-color: white;
+    border: none;
+}
+
+dialog::backdrop {
+    opacity: 0;
+  }
+
+#todo-title{
+    font-size: 1.5rem;
+}
+
+.todo-form {
+    line-height: normal;
+}
+#todo-date, #todo-priority{
+    margin-left: 4px;
+}
+#todo-date:focus{
+    outline: none;
+}
+
+#todo-date::-webkit-calendar-picker-indicator{
+    filter: invert(36%) sepia(96%) saturate(749%) hue-rotate(341deg) brightness(92%) contrast(90%);
+    cursor: pointer;
+}
+
+.todo-label{
+    font-weight: 600;
+}
+
+dialog[open] {
+    animation: slideDropFade 0.2s ease-out;
+    transform-origin: top center;
+  }
+  
+  @keyframes slideDropFade {
+    from {
+      opacity: 0;
+      transform: translateY(800px) scale(0.01);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }

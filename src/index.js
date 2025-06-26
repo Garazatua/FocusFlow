@@ -8,6 +8,7 @@ import todoManager from "./todoManager.js";
 import storage from './storage.js';
 
 storage.loadProjects();
+dom.populateProjectOptions();
 
 console.log("Proyectos cargados:", projectManager.getAllProjects());
 
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelBtn = document.querySelector("#cancel-project-btn");
   addProjectBtn.addEventListener("click", dom.showProjectForm);
   cancelBtn.addEventListener("click", dom.resetProjectForm);
-})
+});
+document.addEventListener("DOMContentLoaded", dom.handleTodoForm)
 
 
