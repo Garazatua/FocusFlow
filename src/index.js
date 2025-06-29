@@ -17,6 +17,11 @@ if (projectManager.getAllProjects().length === 0) {
   projectManager.addProject(inbox);
   storage.saveProjects();
 }
+document.addEventListener("DOMContentLoaded", () => {
+  const projects = projectManager.getAllProjects();
+  const inboxId = projects[0].id;
+  dom.renderProjectPage(inboxId);
+});
 
 document.addEventListener("DOMContentLoaded", formHandler.init);
 document.addEventListener("DOMContentLoaded", dom.renderProjects());

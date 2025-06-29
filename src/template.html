@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>To-Do App</title>
+  <title>FocusFlow  </title>
 </head>
 <body>
     <div id="app">
         <aside id="sidebar">
-          <h1>Todo-list App</h1>
+          <h1>FocusFlow</h1>
       
           <button id="add-task-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg> Add task</button>
       
@@ -32,59 +32,9 @@
 
         <main id="main">
             <div id="main-content">
-                <h2 id="current-view-title">Inbox</h2>
+                <h2 id="current-view-title"></h2>
                 <ul id="todo-list">
-                    <li class="todo">
-                        <div class="todo-left">
-                          <span class="priority low"><svg class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg></span>
-                          <div class="todo-texts">
-                            <p class="todo-title">Go to the gym (Push Day)</p>
-                            <p class="todo-date">Due: 25/06/2025</p>
-                          </div>
-                        </div>
-                        <div class="todo-actions">
-                            <svg class="hidde todo-action" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5,3C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19H5V5H12V3H5M17.78,4C17.61,4 17.43,4.07 17.3,4.2L16.08,5.41L18.58,7.91L19.8,6.7C20.06,6.44 20.06,6 19.8,5.75L18.25,4.2C18.12,4.07 17.95,4 17.78,4M15.37,6.12L8,13.5V16H10.5L17.87,8.62L15.37,6.12Z" /></svg>
-                            <svg class="hidde todo-action" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
-                            <svg class="hidde todo-action" width="20px"xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" /></svg>
-                        </div>
-                    </li>
-                    <li>
-                        <form class="todo-form">
-                            <div class="todo-extended">
-                              <textarea class="todo-title-expanded" placeholder="Go to the fckin GYM" disabled></textarea>
-                              <textarea class="todo-description" placeholder="Description" disabled></textarea>
-                          
-                              <div class="todo-options">
-                                <label> 
-                                  <span class="todo-label">Due:</span>
-                                  <input type="date" id="todo-date" class="todo-date" required disabled/>
-                                </label>
-                                <label > 
-                                  <span class="todo-label">Priority:</span>
-                                  <select id="todo-priority" disabled>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                  </select>
-                                </label>
-                              </div>
-                            
-                            <div class="todo-expanded-actions">
-                              <select>
-                                  <!-- Esto lo vamos a poblar con JS -->
-                              </select>
-                          
-                              <div class="edit-btn-container">
-                                <button type="button" class="back-btn">Back</button>
-                                <button type="button" class="edit-btn">Edit</button>
-                                <button type="button" class="cancel-btn hidden">Cancel</button>
-                                <button type="submit" class="save-btn hidden">Save</button>
-                              </div>
-                            </div>
-                            </div>
-                          </form>
-                    </li>
-                </ul> <!-- Se llena con JS -->
+                </ul> 
                 <button id="add-task-main-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>Add Task</button>
             </div>
         </main>
@@ -103,16 +53,16 @@
           </label>
           <label > 
             <span class="todo-label">Priority:</span>
-            <select id="todo-priority">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+            <select id="todo-priority" >
+              <option value="low"> 🟢 Low </option>
+              <option value="medium">🟡 Medium</option>
+              <option value="high"> 🔴 High </option>
             </select>
           </label>
         </div>
 
         <div class="todo-expanded-actions">
-          <select id="todo-project">
+          <select id="todo-project" class="project-select">
             <!-- Esto lo vamos a poblar con JS -->
         </select>
         <div class="edit-btn-container">

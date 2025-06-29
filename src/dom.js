@@ -1,7 +1,9 @@
 import projectManager from './projectManager.js';
 import storage from './storage.js';
 import currentId from './currentId.js';
-import {format} from 'date-fns';
+import {format, parse} from 'date-fns';
+import todoManager from './todoManager.js';
+import createTodo from './todo.js';
 
 const dom = (function() {
     function showProjectForm() {
@@ -15,11 +17,63 @@ const dom = (function() {
         document.querySelector("#add-project-btn").classList.remove("hidden");
         form.reset();
     }
+
+    function renderCompletedPage(){
+        const title = document.querySelector("#current-view-title");
+        const addTask = document.querySelector("#add-task-main-btn");
+        addTask.classList.add("hidden");
+        title.textContent = "";
+        title.textContent = "Tasks completed";
+        const content = document.querySelector("#todo-list");
+        content.innerHTML = "";
+        const projects = projectManager.getAllProjects();
+        
+        projects.forEach(project => {
+            const todos = project.todos;
+            todos.forEach(todo => {
+                if (!todo.completed) {
+                    return;
+                }
+                else if (todo.completed) {
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("completed-todo");
+                    const todoLeft = document.createElement("div");
+                    todoLeft.classList.add("todo-left");
+                    const userSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    userSvg.setAttribute("viewBox", "0 0 24 24");
+                    userSvg.setAttribute("width", "3rem");
+                    userSvg.innerHTML = `<path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4M11,6A2,2 0 0,0 9,8A2,2 0 0,0 11,10A2,2 0 0,0 13,8A2,2 0 0,0 11,6M11,13C11.68,13 12.5,13.09 13.41,13.26L11.74,14.93L11,14.9C8.03,14.9 4.9,16.36 4.9,17V18.1H11.1L13,20H3V17C3,14.34 8.33,13 11,13Z" />`;
+                    const todoTexts = document.createElement("div");
+                    todoTexts.classList.add("todo-texts");
+                    const todoTitle = document.createElement("p");
+                    todoTitle.classList.add("todo-title");
+                    todoTitle.textContent = "You completed a task: ";
+                    const completedTask = document.createElement("span");
+                    completedTask.classList.add("completed-task");
+                    completedTask.textContent = todo.title;
+                    const todoProject = document.createElement("p");
+                    todoProject.classList.add("todo-date");
+                    todoProject.textContent = `Project: ${project.name}`;
+
+                    content.appendChild(listItem);
+                    listItem.appendChild(todoLeft);
+                    todoLeft.appendChild(userSvg);
+                    todoLeft.appendChild(todoTexts);
+                    todoTexts.appendChild(todoTitle);
+                    todoTitle.appendChild(completedTask);
+                    todoTexts.appendChild(todoProject);
+
+                }
+                else return;
+            });
+        });
+    };
     function renderProjects(){
         const list = document.querySelector("#project-list");
         list.innerHTML = "";
         const projects = projectManager.getAllProjects();
         const inbox = document.querySelector("#inbox-btn");
+        const completed = document.querySelector("#completed-btn");
         inbox.addEventListener("click", () => {
             document.querySelectorAll(".projects").forEach(btn => {
                 btn.classList.remove("active");
@@ -27,6 +81,15 @@ const dom = (function() {
             inbox.classList.add("active");
             renderProjectPage(projects[0].id);
         });
+
+        completed.addEventListener("click", () => {
+            document.querySelectorAll(".projects").forEach(btn => {
+                btn.classList.remove("active");
+            });
+            completed.classList.add("active");
+            renderCompletedPage();
+        })
+
         projects.forEach(project => {
             if (project.name === "Inbox")return
             const li = document.createElement("li");
@@ -75,6 +138,7 @@ const dom = (function() {
                 populateProjectOptions();
                 renderProjects();
                 renderProjectPage(projectManager.getAllProjects()[0].id)
+                completed.classList.remove("active");
                 inbox.classList.add("active");
             })
         })
@@ -82,6 +146,8 @@ const dom = (function() {
     
     function renderProjectPage(projectId){
         currentId.set(projectId);   
+        const addTask = document.querySelector("#add-task-main-btn");
+        addTask.classList.remove("hidden");
         const project = projectManager.getProjectById(projectId);
         const todos = project.todos;
         const title = document.querySelector("#current-view-title");
@@ -91,15 +157,15 @@ const dom = (function() {
         content.innerHTML = "";
 
         todos.forEach(todo => {
-
+            if (!todo.completed){
             const listItem = document.createElement("li");
-            listItem.classList.add("todo")
+            listItem.classList.add("todo");
             const todoLeft = document.createElement("div");
             todoLeft.classList.add("todo-left");
             const priority = document.createElement("span");
             priority.classList.add("priority");
             if (todo.priority === "low"){
-                priority.classList.add("low")
+                priority.classList.add("low");
             }
             else if (todo.priority === "medium"){
                 priority.classList.add("medium");
@@ -137,6 +203,7 @@ const dom = (function() {
             deleteTodoBtn.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
             deleteTodoBtn.classList.add("todo-action");
             deleteTodoBtn.classList.add("hidden");
+            deleteTodoBtn.setAttribute("data-id", todo.id);
 
             content.appendChild(listItem);
             listItem.appendChild(todoLeft);
@@ -158,6 +225,12 @@ const dom = (function() {
                 checkSvg.classList.add("hidden");   
             });
 
+            priority.addEventListener('click', (event) => {
+                event.stopPropagation();
+                todoManager.toggleCompleted(todo.id, projectId);
+                renderProjectPage(projectId);
+            });
+
             listItem.addEventListener("mouseenter", () => {
                 editBtn.classList.remove("hidden");
                 addBtn.classList.remove("hidden");
@@ -169,31 +242,288 @@ const dom = (function() {
                 addBtn.classList.add("hidden");
                 deleteTodoBtn.classList.add("hidden");
             })
+
+            deleteTodoBtn.addEventListener("click", (event) => { 
+                event.stopPropagation();
+                todoManager.deleteTodo(todo.id, projectId);
+                renderProjectPage(projectId);
+            })
+
+            let isEditing = false;
+            editBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                isEditing = true;
+                listItem.innerHTML = "";
+                listItem.classList.remove("todo");
+                const todoForm = document.createElement("form");
+                todoForm.classList.add("todo-form");
+                const todoExtended = document.createElement("div");
+                todoExtended.classList.add("todo-extended");
+                const todoTitleExpanded = document.createElement("textarea");
+                todoTitleExpanded.classList.add("todo-title-expanded");
+                todoTitleExpanded.value = todo.title;
+                const todoDescription = document.createElement("textarea");
+                todoDescription.classList.add("todo-description");
+                todoDescription.value = todo.description;
+                const todoOptions = document.createElement("div");
+                todoOptions.classList.add("todo-options");
+                const firstLabel = document.createElement("label");
+                const todoLabel = document.createElement("span");
+                todoLabel.classList.add("todo-label");
+                todoLabel.textContent = "Due:"
+                const todoDate = document.createElement("input");
+                todoDate.type = "date";
+                const date = format(todo.dueDate, "yyyy-MM-dd");
+                todoDate.value = date;
+                todoDate.setAttribute("id", "todo-date");
+                const secondLabel = document.createElement("label");
+                const todoLabel2 = document.createElement("span");
+                todoLabel2.classList.add("todo-label");
+                todoLabel2.textContent = "Priority:";
+                const selectTodoPriority = document.createElement("select");
+                selectTodoPriority.setAttribute("id", "todo-priority");
+                const low = document.createElement("option");
+                low.value = "low";
+                low.text = "🟢 Low";
+                const medium = document.createElement("option");
+                medium.value = "medium";
+                medium.text = "🟡 Medium";
+                const high = document.createElement("option");
+                high.value = "high";
+                high.text = "🔴 High";
+                const todoExpandedActions = document.createElement("div");
+                todoExpandedActions.classList.add("todo-expanded-actions");
+                const todoProject = document.createElement("select");
+                todoProject.classList.add("project-select");
+                todoProject.id = "todo-project2";
+
+                const editBtnContainer = document.createElement("div");
+                editBtnContainer.classList.add("edit-btn-container");
+                const backBtn = document.createElement("button");
+                backBtn.classList.add("back-btn");
+                backBtn.type = "button";
+                backBtn.textContent = "Back";
+                const saveButton = document.createElement("button");
+                saveButton.type = "submit";
+                saveButton.textContent = "Save";
+                saveButton.classList.add("edit-btn");
+
+                listItem.appendChild(todoForm);
+                todoForm.appendChild(todoExtended);
+                todoExtended.appendChild(todoTitleExpanded);
+                todoExtended.appendChild(todoDescription);
+                todoExtended.appendChild(todoOptions);
+                todoExtended.appendChild(todoExpandedActions);
+                todoOptions.appendChild(firstLabel);
+                firstLabel.appendChild(todoLabel);
+                firstLabel.appendChild(todoDate);
+                todoOptions.appendChild(secondLabel);
+                secondLabel.appendChild(todoLabel2);
+                secondLabel.appendChild(selectTodoPriority);
+                selectTodoPriority.appendChild(low);
+                selectTodoPriority.appendChild(medium);
+                selectTodoPriority.appendChild(high);
+                selectTodoPriority.value = todo.priority;
+                todoExpandedActions.appendChild(todoProject);
+                todoExpandedActions.appendChild(editBtnContainer);
+                editBtnContainer.appendChild(backBtn);
+                editBtnContainer.appendChild(saveButton);
+                populateProjectOptions();
+                todoProject.value = projectId;
+
+                backBtn.addEventListener("click", () => {
+                    isEditing = false;
+                    renderProjectPage(projectId);
+                });
+
+
+                todoForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const title = todoTitleExpanded.value;
+                    const description = todoDescription.value;
+                    const rawData = todoDate.value;
+                    const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+                    const priority = selectTodoPriority.value;
+                    const project = todoProject.value;
+                    const newData = {
+                        title: title,
+                        description: description,
+                        dueDate: dueDate,
+                        priority: priority,
+                        projectId: project,
+                    };                    
+                    todoManager.editTodo(todo.id, projectId, newData);
+                    isEditing = false;
+                    renderProjectPage(projectId);
+                });
             
-        })
+            });
+      
+            listItem.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (isEditing) return;
+                listItem.innerHTML = "";
+                listItem.classList.remove("todo");
+                const todoForm = document.createElement("form");
+                todoForm.classList.add("todo-form");
+                const todoExtended = document.createElement("div");
+                todoExtended.classList.add("todo-extended");
+                const todoTitleExpanded = document.createElement("textarea");
+                todoTitleExpanded.classList.add("todo-title-expanded");
+                todoTitleExpanded.value = todo.title;
+                todoTitleExpanded.disabled = true;
+                const todoDescription = document.createElement("textarea");
+                todoDescription.classList.add("todo-description");
+                todoDescription.value = todo.description;
+                todoDescription.disabled = true;
+                const todoOptions = document.createElement("div");
+                todoOptions.classList.add("todo-options");
+                const firstLabel = document.createElement("label");
+                const todoLabel = document.createElement("span");
+                todoLabel.classList.add("todo-label");
+                todoLabel.textContent = "Due:"
+                const todoDate = document.createElement("input");
+                todoDate.type = "date";
+                const date = format(todo.dueDate, "yyyy-MM-dd");
+                todoDate.value = date;
+                todoDate.setAttribute("id", "todo-date");
+                todoDate.disabled = true;
+                const secondLabel = document.createElement("label");
+                const todoLabel2 = document.createElement("span");
+                todoLabel2.classList.add("todo-label");
+                todoLabel2.textContent = "Priority:";
+                const selectTodoPriority = document.createElement("select");
+                selectTodoPriority.setAttribute("id", "todo-priority");
+                selectTodoPriority.disabled = true;
+                const low = document.createElement("option");
+                low.value = "low";
+                low.text = "🟢 Low";
+                const medium = document.createElement("option");
+                medium.value = "medium";
+                medium.text = "🟡 Medium";
+                const high = document.createElement("option");
+                high.value = "high";
+                high.text = "🔴 High";
+                const todoExpandedActions = document.createElement("div");
+                todoExpandedActions.classList.add("todo-expanded-actions");
+                const todoProject = document.createElement("select");
+                todoProject.classList.add("project-select");
+                todoProject.id = "todo-project2";
+                todoProject.disabled = true;
+
+                const editBtnContainer = document.createElement("div");
+                editBtnContainer.classList.add("edit-btn-container");
+                const backBtn = document.createElement("button");
+                backBtn.classList.add("back-btn");
+                backBtn.type = "button";
+                backBtn.textContent = "Back";
+                const editButton = document.createElement("button");
+                editButton.classList.add("edit-btn");
+                editButton.type = "button";
+                editButton.textContent = "Edit";
+                const saveButton = document.createElement("button");
+                saveButton.type = "submit";
+                saveButton.textContent = "Save";
+                saveButton.classList.add("edit-btn", "hidden");
+
+                listItem.appendChild(todoForm);
+                todoForm.appendChild(todoExtended);
+                todoExtended.appendChild(todoTitleExpanded);
+                todoExtended.appendChild(todoDescription);
+                todoExtended.appendChild(todoOptions);
+                todoExtended.appendChild(todoExpandedActions);
+                todoOptions.appendChild(firstLabel);
+                firstLabel.appendChild(todoLabel);
+                firstLabel.appendChild(todoDate);
+                todoOptions.appendChild(secondLabel);
+                secondLabel.appendChild(todoLabel2);
+                secondLabel.appendChild(selectTodoPriority);
+                selectTodoPriority.appendChild(low);
+                selectTodoPriority.appendChild(medium);
+                selectTodoPriority.appendChild(high);
+                selectTodoPriority.value = todo.priority;
+                todoExpandedActions.appendChild(todoProject);
+                todoExpandedActions.appendChild(editBtnContainer);
+                editBtnContainer.appendChild(backBtn);
+                editBtnContainer.appendChild(editButton);
+                editBtnContainer.appendChild(saveButton);
+                populateProjectOptions();
+                todoProject.value = projectId;
+
+                backBtn.addEventListener("click", () => {
+                    isEditing = false;
+                    renderProjectPage(projectId);
+                });
+
+                editButton.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    todoTitleExpanded.disabled = false;
+                    todoDescription.disabled = false;
+                    todoDate.disabled = false;
+                    selectTodoPriority.disabled = false;
+                    selectTodoPriority.value = todo.priority;
+                    todoProject.disabled = false;
+                    isEditing = true;
+                    editButton.classList.add("hidden");
+                    saveButton.classList.remove("hidden");
+                });
+
+                todoForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const title = todoTitleExpanded.value;
+                    const description = todoDescription.value;
+                    const rawData = todoDate.value;
+                    const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+                    const priority = selectTodoPriority.value;
+                    const project = todoProject.value;
+                    const newData = {
+                        title: title,
+                        description: description,
+                        dueDate: dueDate,
+                        priority: priority,
+                        projectId: project,
+                    };                    
+                    todoManager.editTodo(todo.id, projectId, newData);
+                    isEditing = false;
+                    editButton.classList.remove("hidden");
+                    saveButton.classList.add("hidden");
+                    renderProjectPage(projectId);
+                });
+            });
+        }
+        });
     }
 
     function populateProjectOptions() {
-        const select = document.querySelector("#todo-project");
-        select.innerHTML = ""; 
-      
+        const selects = document.querySelectorAll(".project-select");
+        selects.forEach(select => select.innerHTML = "");
+    
         const projects = projectManager.getAllProjects();
-        projects.forEach(project => {
-          const option = document.createElement("option");
-          option.value = project.id;
-          option.textContent = `📁 ${project.name}`;
-          select.appendChild(option);
+        selects.forEach(select => {
+            projects.forEach(project => {
+                const option = document.createElement("option");
+                option.value = project.id;
+                option.textContent = `📁 ${project.name}`;
+                select.appendChild(option);
+            });
         });
-      }
+    }
     function handleTodoForm() {
         const addTaskBtn = document.querySelector("#add-task-btn");
+        const todoProject = document.querySelector("#todo-project");
         const secondAddTaskBtn = document.querySelector("#add-task-main-btn");
         const addTaskForm = document.querySelector("#create-todo-dialog");
         const closeTaskForm = document.querySelector("#close-task-form");
         addTaskBtn.addEventListener("click", () => {
+            const projects = projectManager.getAllProjects();
+            const inboxId = projects[0].id;
+            todoProject.value = inboxId;
             addTaskForm.showModal();
         })
         secondAddTaskBtn.addEventListener("click", () => {
+            const projectId = currentId.get();
+            todoProject.value = projectId;
             addTaskForm.showModal();
         })
         closeTaskForm.addEventListener("click", () => {
