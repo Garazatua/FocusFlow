@@ -5,7 +5,7 @@ import {format, parse} from 'date-fns';
 import todoManager from './todoManager.js';
 import createTodo from './todo.js';
 
-const dom = (function() {
+const dom = (function() {   
     function showProjectForm() {
         document.querySelector("#create-project").classList.remove("hidden");
         document.querySelector("#add-project-btn").classList.add("hidden");
@@ -275,6 +275,7 @@ const dom = (function() {
                 todoDate.type = "date";
                 const date = format(todo.dueDate, "yyyy-MM-dd");
                 todoDate.value = date;
+                todoDate.min = validateTodoForm();
                 todoDate.setAttribute("id", "todo-date");
                 const secondLabel = document.createElement("label");
                 const todoLabel2 = document.createElement("span");
@@ -461,6 +462,7 @@ const dom = (function() {
                     todoTitleExpanded.disabled = false;
                     todoDescription.disabled = false;
                     todoDate.disabled = false;
+                    todoDate.min = validateTodoForm();
                     selectTodoPriority.disabled = false;
                     selectTodoPriority.value = todo.priority;
                     todoProject.disabled = false;
@@ -520,15 +522,28 @@ const dom = (function() {
             const inboxId = projects[0].id;
             todoProject.value = inboxId;
             addTaskForm.showModal();
+            validateTodoForm();
         })
         secondAddTaskBtn.addEventListener("click", () => {
             const projectId = currentId.get();
             todoProject.value = projectId;
             addTaskForm.showModal();
+            validateTodoForm();
         })
         closeTaskForm.addEventListener("click", () => {
             addTaskForm.close();
         });
+    }
+
+    function validateTodoForm() {
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const dd = String(hoy.getDate() + 1).padStart(2, "0");
+        const todayDate = `${yyyy}-${mm}-${dd}`;
+        const dueDateInput = document.querySelector("#todo-date");
+        dueDateInput.min = todayDate;
+        return todayDate;
     }
 
 
