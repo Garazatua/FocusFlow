@@ -1,7 +1,7 @@
 import projectManager from './projectManager.js';
 import storage from './storage.js';
 import currentId from './currentId.js';
-import {format, parse} from 'date-fns';
+import {format, parse, addDays} from 'date-fns';
 import todoManager from './todoManager.js';
 import createTodo from './todo.js';
 
@@ -16,6 +16,38 @@ const dom = (function() {
         form.classList.add("hidden");
         document.querySelector("#add-project-btn").classList.remove("hidden");
         form.reset();
+    }
+
+    function createPrioritySelect(value, isDisabled = false) {
+        const select = document.createElement("select");
+        select.setAttribute("id", "todo-priority");
+        if (isDisabled) select.disabled = true;
+    
+        const options = [
+            { value: "low", text: "🟢 Low" },
+            { value: "medium", text: "🟡 Medium" },
+            { value: "high", text: "🔴 High" },
+        ];
+    
+        options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt.value;
+            option.textContent = opt.text;
+            select.appendChild(option);
+        });
+    
+        select.value = value;
+        return select;
+    }
+
+    function createDueDateInput(date, isDisabled = false) {
+        const input = document.createElement("input");
+        input.type = "date";
+        input.value = format(date, "yyyy-MM-dd");
+        input.min = validateTodoForm(); 
+        input.setAttribute("id", "todo-date");
+        if (isDisabled) input.disabled = true;
+        return input;
     }
 
     function renderCompletedPage(){
@@ -68,96 +100,10 @@ const dom = (function() {
             });
         });
     };
-    function renderProjects(){
-        const list = document.querySelector("#project-list");
-        list.innerHTML = "";
-        const projects = projectManager.getAllProjects();
-        const inbox = document.querySelector("#inbox-btn");
-        const completed = document.querySelector("#completed-btn");
-        inbox.addEventListener("click", () => {
-            document.querySelectorAll(".projects").forEach(btn => {
-                btn.classList.remove("active");
-            });
-            inbox.classList.add("active");
-            renderProjectPage(projects[0].id);
-        });
 
-        completed.addEventListener("click", () => {
-            document.querySelectorAll(".projects").forEach(btn => {
-                btn.classList.remove("active");
-            });
-            completed.classList.add("active");
-            renderCompletedPage();
-        })
-
-        projects.forEach(project => {
-            if (project.name === "Inbox")return
-            const li = document.createElement("li");
-            const btn = document.createElement("button");
-            btn.classList.add("btn", "project-btn", "projects");
-            btn.setAttribute("data-id", project.id);
-            const projectInfo = document.createElement("span");
-            projectInfo.classList.add("project-info");
-            const folderIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            folderIcon.setAttribute("viewBox", "0 0 24 24");
-            folderIcon.innerHTML = `<path d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />`;
-            const projectName = document.createElement("span");
-            projectName.classList.add("project-name");
-            projectName.textContent = project.name;
-            const trashIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            trashIcon.classList.add("eliminate-project", "hidden");
-            trashIcon.setAttribute("viewBox", "0 0 24 24");
-            trashIcon.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
-            projectInfo.appendChild(folderIcon);
-            projectInfo.appendChild(projectName);
-            btn.appendChild(projectInfo);
-            btn.appendChild(trashIcon);
-            li.appendChild(btn);
-            list.appendChild(li);
-
-            btn.addEventListener("mouseenter", () => {
-                trashIcon.classList.remove("hidden");
-            })
-
-            btn.addEventListener("mouseleave",() => {
-                trashIcon.classList.add("hidden");
-            })
-
-            btn.addEventListener("click", () => {
-                document.querySelectorAll(".projects").forEach(btn => {
-                    btn.classList.remove("active");
-                });
-                btn.classList.add("active");
-                renderProjectPage(project.id);
-            })
-
-            trashIcon.addEventListener("click", (event) => {
-                event.stopPropagation();
-                projectManager.deleteProject(project.id);
-                storage.saveProjects();
-                populateProjectOptions();
-                renderProjects();
-                renderProjectPage(projectManager.getAllProjects()[0].id)
-                completed.classList.remove("active");
-                inbox.classList.add("active");
-            })
-        })
-    }
-    
-    function renderProjectPage(projectId){
-        currentId.set(projectId);   
-        const addTask = document.querySelector("#add-task-main-btn");
-        addTask.classList.remove("hidden");
-        const project = projectManager.getProjectById(projectId);
-        const todos = project.todos;
-        const title = document.querySelector("#current-view-title");
-        title.textContent = "";
-        title.textContent = project.name;
+    function renderTodo(todo, projectId){
         const content = document.querySelector("#todo-list");
-        content.innerHTML = "";
-
-        todos.forEach(todo => {
-            if (!todo.completed){
+        if (!todo.completed){
             const listItem = document.createElement("li");
             listItem.classList.add("todo");
             const todoLeft = document.createElement("div");
@@ -271,27 +217,12 @@ const dom = (function() {
                 const todoLabel = document.createElement("span");
                 todoLabel.classList.add("todo-label");
                 todoLabel.textContent = "Due:"
-                const todoDate = document.createElement("input");
-                todoDate.type = "date";
-                const date = format(todo.dueDate, "yyyy-MM-dd");
-                todoDate.value = date;
-                todoDate.min = validateTodoForm();
-                todoDate.setAttribute("id", "todo-date");
+                const todoDate = createDueDateInput(todo.dueDate);
                 const secondLabel = document.createElement("label");
                 const todoLabel2 = document.createElement("span");
                 todoLabel2.classList.add("todo-label");
                 todoLabel2.textContent = "Priority:";
-                const selectTodoPriority = document.createElement("select");
-                selectTodoPriority.setAttribute("id", "todo-priority");
-                const low = document.createElement("option");
-                low.value = "low";
-                low.text = "🟢 Low";
-                const medium = document.createElement("option");
-                medium.value = "medium";
-                medium.text = "🟡 Medium";
-                const high = document.createElement("option");
-                high.value = "high";
-                high.text = "🔴 High";
+                const selectTodoPriority = createPrioritySelect(todo.priority);
                 const todoExpandedActions = document.createElement("div");
                 todoExpandedActions.classList.add("todo-expanded-actions");
                 const todoProject = document.createElement("select");
@@ -321,10 +252,6 @@ const dom = (function() {
                 todoOptions.appendChild(secondLabel);
                 secondLabel.appendChild(todoLabel2);
                 secondLabel.appendChild(selectTodoPriority);
-                selectTodoPriority.appendChild(low);
-                selectTodoPriority.appendChild(medium);
-                selectTodoPriority.appendChild(high);
-                selectTodoPriority.value = todo.priority;
                 todoExpandedActions.appendChild(todoProject);
                 todoExpandedActions.appendChild(editBtnContainer);
                 editBtnContainer.appendChild(backBtn);
@@ -334,6 +261,7 @@ const dom = (function() {
 
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
+                    todoForm.reset();
                     renderProjectPage(projectId);
                 });
 
@@ -383,28 +311,12 @@ const dom = (function() {
                 const todoLabel = document.createElement("span");
                 todoLabel.classList.add("todo-label");
                 todoLabel.textContent = "Due:"
-                const todoDate = document.createElement("input");
-                todoDate.type = "date";
-                const date = format(todo.dueDate, "yyyy-MM-dd");
-                todoDate.value = date;
-                todoDate.setAttribute("id", "todo-date");
-                todoDate.disabled = true;
+                const todoDate = createDueDateInput(todo.dueDate, true);
                 const secondLabel = document.createElement("label");
                 const todoLabel2 = document.createElement("span");
                 todoLabel2.classList.add("todo-label");
                 todoLabel2.textContent = "Priority:";
-                const selectTodoPriority = document.createElement("select");
-                selectTodoPriority.setAttribute("id", "todo-priority");
-                selectTodoPriority.disabled = true;
-                const low = document.createElement("option");
-                low.value = "low";
-                low.text = "🟢 Low";
-                const medium = document.createElement("option");
-                medium.value = "medium";
-                medium.text = "🟡 Medium";
-                const high = document.createElement("option");
-                high.value = "high";
-                high.text = "🔴 High";
+                const selectTodoPriority = createPrioritySelect(todo.priority, true);
                 const todoExpandedActions = document.createElement("div");
                 todoExpandedActions.classList.add("todo-expanded-actions");
                 const todoProject = document.createElement("select");
@@ -439,10 +351,6 @@ const dom = (function() {
                 todoOptions.appendChild(secondLabel);
                 secondLabel.appendChild(todoLabel2);
                 secondLabel.appendChild(selectTodoPriority);
-                selectTodoPriority.appendChild(low);
-                selectTodoPriority.appendChild(medium);
-                selectTodoPriority.appendChild(high);
-                selectTodoPriority.value = todo.priority;
                 todoExpandedActions.appendChild(todoProject);
                 todoExpandedActions.appendChild(editBtnContainer);
                 editBtnContainer.appendChild(backBtn);
@@ -453,6 +361,7 @@ const dom = (function() {
 
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
+                    todoForm.reset();
                     renderProjectPage(projectId);
                 });
 
@@ -494,6 +403,97 @@ const dom = (function() {
                 });
             });
         }
+    };
+    function renderProjects(){
+        const list = document.querySelector("#project-list");
+        list.innerHTML = "";
+        const projects = projectManager.getAllProjects();
+        const inbox = document.querySelector("#inbox-btn");
+        const completed = document.querySelector("#completed-btn");
+        inbox.addEventListener("click", () => {
+            document.querySelectorAll(".projects").forEach(btn => {
+                btn.classList.remove("active");
+            });
+            inbox.classList.add("active");
+            renderProjectPage(projects[0].id);
+        });
+
+        completed.addEventListener("click", () => {
+            document.querySelectorAll(".projects").forEach(btn => {
+                btn.classList.remove("active");
+            });
+            completed.classList.add("active");
+            renderCompletedPage();
+        })
+
+        projects.forEach(project => {
+            if (project.name === "Inbox")return
+            const li = document.createElement("li");
+            const btn = document.createElement("button");
+            btn.classList.add("btn", "project-btn", "projects");
+            btn.setAttribute("data-id", project.id);
+            const projectInfo = document.createElement("span");
+            projectInfo.classList.add("project-info");
+            const folderIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            folderIcon.setAttribute("viewBox", "0 0 24 24");
+            folderIcon.innerHTML = `<path d="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />`;
+            const projectName = document.createElement("span");
+            projectName.classList.add("project-name");
+            projectName.textContent = project.name;
+            const trashIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            trashIcon.classList.add("eliminate-project", "hidden");
+            trashIcon.setAttribute("viewBox", "0 0 24 24");
+            trashIcon.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
+            projectInfo.appendChild(folderIcon);
+            projectInfo.appendChild(projectName);
+            btn.appendChild(projectInfo);
+            btn.appendChild(trashIcon);
+            li.appendChild(btn);
+            list.appendChild(li);
+
+            btn.addEventListener("mouseenter", () => {
+                trashIcon.classList.remove("hidden");
+            })
+
+            btn.addEventListener("mouseleave",() => {
+                trashIcon.classList.add("hidden");
+            })
+
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".projects").forEach(btn => {
+                    btn.classList.remove("active");
+                });
+                btn.classList.add("active");
+                renderProjectPage(project.id);
+            })
+
+            trashIcon.addEventListener("click", (event) => {
+                event.stopPropagation();
+                projectManager.deleteProject(project.id);
+                storage.saveProjects();
+                populateProjectOptions();
+                renderProjects();
+                renderProjectPage(projectManager.getAllProjects()[0].id)
+                completed.classList.remove("active");
+                inbox.classList.add("active");
+            })
+        })
+    }
+    
+    function renderProjectPage(projectId){
+        currentId.set(projectId);   
+        const addTask = document.querySelector("#add-task-main-btn");
+        addTask.classList.remove("hidden");
+        const project = projectManager.getProjectById(projectId);
+        const todos = project.todos;
+        const title = document.querySelector("#current-view-title");
+        title.textContent = "";
+        title.textContent = project.name;
+        const content = document.querySelector("#todo-list");
+        content.innerHTML = "";
+
+        todos.forEach(todo => {
+            renderTodo(todo, projectId);
         });
     }
 
@@ -516,6 +516,7 @@ const dom = (function() {
         const todoProject = document.querySelector("#todo-project");
         const secondAddTaskBtn = document.querySelector("#add-task-main-btn");
         const addTaskForm = document.querySelector("#create-todo-dialog");
+        const form = document.querySelector("#create-todo");
         const closeTaskForm = document.querySelector("#close-task-form");
         addTaskBtn.addEventListener("click", () => {
             const projects = projectManager.getAllProjects();
@@ -531,19 +532,17 @@ const dom = (function() {
             validateTodoForm();
         })
         closeTaskForm.addEventListener("click", () => {
+            form.reset()
             addTaskForm.close();
         });
     }
 
     function validateTodoForm() {
-        const hoy = new Date();
-        const yyyy = hoy.getFullYear();
-        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
-        const dd = String(hoy.getDate() + 1).padStart(2, "0");
-        const todayDate = `${yyyy}-${mm}-${dd}`;
+        const tomorrow = addDays(new Date(), 1);
+        const formattedTomorrow = format(tomorrow, "yyyy-MM-dd");;
         const dueDateInput = document.querySelector("#todo-date");
-        dueDateInput.min = todayDate;
-        return todayDate;
+        dueDateInput.min = formattedTomorrow;
+        return formattedTomorrow;
     }
 
 
