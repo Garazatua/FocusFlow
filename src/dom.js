@@ -50,6 +50,174 @@ const dom = (function() {
         return input;
     }
 
+    function renderExpandedTodoView(listItem, todo, projectId, isEditable = false) {
+        listItem.innerHTML = "";
+        listItem.classList.remove("todo");
+    
+        const todoForm = document.createElement("form");
+        todoForm.classList.add("todo-form");
+    
+        const todoExtended = document.createElement("div");
+        todoExtended.classList.add("todo-extended");
+    
+        const todoTitleExpanded = document.createElement("textarea");
+        todoTitleExpanded.classList.add("todo-title-expanded");
+        todoTitleExpanded.value = todo.title;
+    
+        const todoDescription = document.createElement("textarea");
+        todoDescription.classList.add("todo-description");
+        todoDescription.value = todo.description;
+    
+        const todoOptions = document.createElement("div");
+        todoOptions.classList.add("todo-options");
+    
+        const firstLabel = document.createElement("label");
+        const todoLabel = document.createElement("span");
+        todoLabel.classList.add("todo-label");
+        todoLabel.textContent = "Due:";
+        const todoDate = createDueDateInput(todo.dueDate);
+    
+        const secondLabel = document.createElement("label");
+        const todoLabel2 = document.createElement("span");
+        todoLabel2.classList.add("todo-label");
+        todoLabel2.textContent = "Priority:";
+        const selectTodoPriority = createPrioritySelect(todo.priority);
+    
+        const todoExpandedActions = document.createElement("div");
+        todoExpandedActions.classList.add("todo-expanded-actions");
+    
+        const todoProject = document.createElement("select");
+        todoProject.classList.add("project-select");
+        todoProject.id = "todo-project2";
+    
+        const editBtnContainer = document.createElement("div");
+        editBtnContainer.classList.add("edit-btn-container");
+    
+        const backBtn = document.createElement("button");
+        backBtn.classList.add("back-btn");
+        backBtn.type = "button";
+        backBtn.textContent = "Back";
+    
+        const editButton = document.createElement("button");
+        editButton.classList.add("edit-btn");
+        editButton.type = "button";
+        editButton.textContent = "Edit";
+    
+        const saveButton = document.createElement("button");
+        saveButton.classList.add("edit-btn", "hidden");
+        saveButton.type = "submit";
+        saveButton.textContent = "Save";
+    
+
+        todoTitleExpanded.disabled = !isEditable;
+        todoDescription.disabled = !isEditable;
+        todoDate.disabled = !isEditable;
+        selectTodoPriority.disabled = !isEditable;
+        todoProject.disabled = !isEditable;
+
+
+        listItem.appendChild(todoForm);
+        todoForm.appendChild(todoExtended);
+        todoExtended.appendChild(todoTitleExpanded);
+        todoExtended.appendChild(todoDescription);
+        todoExtended.appendChild(todoOptions);
+        todoExtended.appendChild(todoExpandedActions);
+        todoOptions.appendChild(firstLabel);
+        firstLabel.appendChild(todoLabel);
+        firstLabel.appendChild(todoDate);
+        todoOptions.appendChild(secondLabel);
+        secondLabel.appendChild(todoLabel2);
+        secondLabel.appendChild(selectTodoPriority);
+        todoExpandedActions.appendChild(todoProject);
+        todoExpandedActions.appendChild(editBtnContainer);
+        editBtnContainer.appendChild(backBtn);
+        editBtnContainer.appendChild(editButton);
+        editBtnContainer.appendChild(saveButton);
+    
+        populateProjectOptions();
+        todoProject.value = projectId;
+        if (isEditable) {
+            todoDate.min = validateTodoForm();
+            editButton.classList.add("hidden");
+            saveButton.classList.remove("hidden");
+        }
+    
+    
+        return {
+            todoForm,
+            todoTitleExpanded,
+            todoDescription,
+            todoDate,
+            selectTodoPriority,
+            todoProject,
+            editButton,
+            saveButton,
+            backBtn
+        };
+    }
+    
+    function createTodoListItem(todo, projectId) {
+        const listItem = document.createElement("li");
+        listItem.classList.add("todo");
+    
+        const todoLeft = document.createElement("div");
+        todoLeft.classList.add("todo-left");
+    
+        const priority = document.createElement("span");
+        priority.classList.add("priority", todo.priority);
+        
+        const checkSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        checkSvg.setAttribute("viewBox", "0 0 24 24");
+        checkSvg.innerHTML = `<path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" />`;
+        checkSvg.classList.add("hidden");
+    
+        const todoTexts = document.createElement("div");
+        todoTexts.classList.add("todo-texts");
+    
+        const todoTitle = document.createElement("p");
+        todoTitle.classList.add("todo-title");
+        todoTitle.textContent = todo.title;
+    
+        const todoDate = document.createElement("p");
+        todoDate.classList.add("todo-date");
+        const formatted = format(todo.dueDate, "dd/MM/yyyy");
+        todoDate.textContent = `Due: ${formatted}`;
+    
+        const todoActions = document.createElement("div");
+        todoActions.classList.add("todo-actions");
+    
+        const editBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        editBtn.setAttribute("viewBox", "0 0 24 24");
+        editBtn.innerHTML = `<path d="M5,3C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19H5V5H12V3H5M17.78,4C17.61,4 17.43,4.07 17.3,4.2L16.08,5.41L18.58,7.91L19.8,6.7C20.06,6.44 20.06,6 19.8,5.75L18.25,4.2C18.12,4.07 17.95,4 17.78,4M15.37,6.12L8,13.5V16H10.5L17.87,8.62L15.37,6.12Z" />`;
+        editBtn.classList.add("todo-action", "hidden");
+    
+        const addBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        addBtn.setAttribute("viewBox", "0 0 24 24");
+        addBtn.innerHTML = `<path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />`;
+        addBtn.classList.add("todo-action", "hidden");
+    
+        const deleteBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        deleteBtn.setAttribute("viewBox", "0 0 24 24");
+        deleteBtn.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
+        deleteBtn.classList.add("todo-action", "hidden");
+    
+        listItem.dataset.todoId = todo.id;
+        listItem.dataset.projectId = projectId;
+    
+        listItem.appendChild(todoLeft);
+        listItem.appendChild(todoActions);
+        todoLeft.appendChild(priority);
+        priority.appendChild(checkSvg);
+        todoLeft.appendChild(todoTexts);
+        todoTexts.appendChild(todoTitle);
+        todoTexts.appendChild(todoDate);
+        todoActions.appendChild(editBtn);
+        todoActions.appendChild(addBtn);
+        todoActions.appendChild(deleteBtn);
+    
+        return { listItem, editBtn, addBtn, deleteBtn, priority, checkSvg };
+    }
+
     function renderCompletedPage(){
         const title = document.querySelector("#current-view-title");
         const addTask = document.querySelector("#add-task-main-btn");
@@ -104,64 +272,8 @@ const dom = (function() {
     function renderTodo(todo, projectId){
         const content = document.querySelector("#todo-list");
         if (!todo.completed){
-            const listItem = document.createElement("li");
-            listItem.classList.add("todo");
-            const todoLeft = document.createElement("div");
-            todoLeft.classList.add("todo-left");
-            const priority = document.createElement("span");
-            priority.classList.add("priority");
-            if (todo.priority === "low"){
-                priority.classList.add("low");
-            }
-            else if (todo.priority === "medium"){
-                priority.classList.add("medium");
-            }
-            else if(todo.priority === "high") {
-                priority.classList.add("high");
-            }
-            const checkSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            checkSvg.setAttribute("viewBox", "0 0 24 24");
-            checkSvg.innerHTML = `<path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" />`;
-            checkSvg.classList.add("hidden");
-            const todoTexts = document.createElement("div");
-            todoTexts.classList.add("todo-texts");
-            const todoTitle = document.createElement("p");
-            todoTitle.classList.add("todo-title");
-            todoTitle.textContent = todo.title;
-            const todoDate = document.createElement("p");
-            todoDate.classList.add("todo-date");
-            const date = format(todo.dueDate, "dd/MM/yyyy");
-            todoDate.textContent = `Due: ${date}`;
-            const todoActions = document.createElement("div");
-            todoActions.classList.add("todo-actions");
-            const editBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            editBtn.setAttribute("viewBox", "0 0 24 24");
-            editBtn.innerHTML = `<path d="M5,3C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19H5V5H12V3H5M17.78,4C17.61,4 17.43,4.07 17.3,4.2L16.08,5.41L18.58,7.91L19.8,6.7C20.06,6.44 20.06,6 19.8,5.75L18.25,4.2C18.12,4.07 17.95,4 17.78,4M15.37,6.12L8,13.5V16H10.5L17.87,8.62L15.37,6.12Z" />`;
-            editBtn.classList.add("todo-action");
-            editBtn.classList.add("hidden");
-            const addBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            addBtn.setAttribute("viewBox", "0 0 24 24");
-            addBtn.innerHTML = `<path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />`;
-            addBtn.classList.add("todo-action");
-            addBtn.classList.add("hidden");
-            const deleteTodoBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            deleteTodoBtn.setAttribute("viewBox", "0 0 24 24");
-            deleteTodoBtn.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
-            deleteTodoBtn.classList.add("todo-action");
-            deleteTodoBtn.classList.add("hidden");
-            deleteTodoBtn.setAttribute("data-id", todo.id);
-
+            const { listItem, editBtn, addBtn, deleteBtn, priority, checkSvg } = createTodoListItem(todo, projectId);
             content.appendChild(listItem);
-            listItem.appendChild(todoLeft);
-            listItem.appendChild(todoActions);
-            todoLeft.appendChild(priority);
-            todoLeft.appendChild(todoTexts);
-            todoActions.appendChild(editBtn);
-            todoActions.appendChild(addBtn);
-            todoActions.appendChild(deleteTodoBtn);
-            priority.appendChild(checkSvg);
-            todoTexts.appendChild(todoTitle);
-            todoTexts.appendChild(todoDate);
 
             priority.addEventListener("mouseenter", () =>{
                 checkSvg.classList.remove("hidden");
@@ -180,84 +292,26 @@ const dom = (function() {
             listItem.addEventListener("mouseenter", () => {
                 editBtn.classList.remove("hidden");
                 addBtn.classList.remove("hidden");
-                deleteTodoBtn.classList.remove("hidden");
+                deleteBtn.classList.remove("hidden");
             });
 
             listItem.addEventListener("mouseleave", () => {
                 editBtn.classList.add("hidden");
                 addBtn.classList.add("hidden");
-                deleteTodoBtn.classList.add("hidden");
-            })
+                deleteBtn.classList.add("hidden");
+            });
 
-            deleteTodoBtn.addEventListener("click", (event) => { 
+            deleteBtn.addEventListener("click", (event) => { 
                 event.stopPropagation();
                 todoManager.deleteTodo(todo.id, projectId);
                 renderProjectPage(projectId);
-            })
+            });
 
             let isEditing = false;
             editBtn.addEventListener("click", (event) => {
                 event.stopPropagation();
                 isEditing = true;
-                listItem.innerHTML = "";
-                listItem.classList.remove("todo");
-                const todoForm = document.createElement("form");
-                todoForm.classList.add("todo-form");
-                const todoExtended = document.createElement("div");
-                todoExtended.classList.add("todo-extended");
-                const todoTitleExpanded = document.createElement("textarea");
-                todoTitleExpanded.classList.add("todo-title-expanded");
-                todoTitleExpanded.value = todo.title;
-                const todoDescription = document.createElement("textarea");
-                todoDescription.classList.add("todo-description");
-                todoDescription.value = todo.description;
-                const todoOptions = document.createElement("div");
-                todoOptions.classList.add("todo-options");
-                const firstLabel = document.createElement("label");
-                const todoLabel = document.createElement("span");
-                todoLabel.classList.add("todo-label");
-                todoLabel.textContent = "Due:"
-                const todoDate = createDueDateInput(todo.dueDate);
-                const secondLabel = document.createElement("label");
-                const todoLabel2 = document.createElement("span");
-                todoLabel2.classList.add("todo-label");
-                todoLabel2.textContent = "Priority:";
-                const selectTodoPriority = createPrioritySelect(todo.priority);
-                const todoExpandedActions = document.createElement("div");
-                todoExpandedActions.classList.add("todo-expanded-actions");
-                const todoProject = document.createElement("select");
-                todoProject.classList.add("project-select");
-                todoProject.id = "todo-project2";
-
-                const editBtnContainer = document.createElement("div");
-                editBtnContainer.classList.add("edit-btn-container");
-                const backBtn = document.createElement("button");
-                backBtn.classList.add("back-btn");
-                backBtn.type = "button";
-                backBtn.textContent = "Back";
-                const saveButton = document.createElement("button");
-                saveButton.type = "submit";
-                saveButton.textContent = "Save";
-                saveButton.classList.add("edit-btn");
-
-                listItem.appendChild(todoForm);
-                todoForm.appendChild(todoExtended);
-                todoExtended.appendChild(todoTitleExpanded);
-                todoExtended.appendChild(todoDescription);
-                todoExtended.appendChild(todoOptions);
-                todoExtended.appendChild(todoExpandedActions);
-                todoOptions.appendChild(firstLabel);
-                firstLabel.appendChild(todoLabel);
-                firstLabel.appendChild(todoDate);
-                todoOptions.appendChild(secondLabel);
-                secondLabel.appendChild(todoLabel2);
-                secondLabel.appendChild(selectTodoPriority);
-                todoExpandedActions.appendChild(todoProject);
-                todoExpandedActions.appendChild(editBtnContainer);
-                editBtnContainer.appendChild(backBtn);
-                editBtnContainer.appendChild(saveButton);
-                populateProjectOptions();
-                todoProject.value = projectId;
+                const {todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn} = renderExpandedTodoView(listItem, todo, projectId, true);
 
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
@@ -291,73 +345,8 @@ const dom = (function() {
             listItem.addEventListener("click", (event) => {
                 event.stopPropagation();
                 if (isEditing) return;
-                listItem.innerHTML = "";
-                listItem.classList.remove("todo");
-                const todoForm = document.createElement("form");
-                todoForm.classList.add("todo-form");
-                const todoExtended = document.createElement("div");
-                todoExtended.classList.add("todo-extended");
-                const todoTitleExpanded = document.createElement("textarea");
-                todoTitleExpanded.classList.add("todo-title-expanded");
-                todoTitleExpanded.value = todo.title;
-                todoTitleExpanded.disabled = true;
-                const todoDescription = document.createElement("textarea");
-                todoDescription.classList.add("todo-description");
-                todoDescription.value = todo.description;
-                todoDescription.disabled = true;
-                const todoOptions = document.createElement("div");
-                todoOptions.classList.add("todo-options");
-                const firstLabel = document.createElement("label");
-                const todoLabel = document.createElement("span");
-                todoLabel.classList.add("todo-label");
-                todoLabel.textContent = "Due:"
-                const todoDate = createDueDateInput(todo.dueDate, true);
-                const secondLabel = document.createElement("label");
-                const todoLabel2 = document.createElement("span");
-                todoLabel2.classList.add("todo-label");
-                todoLabel2.textContent = "Priority:";
-                const selectTodoPriority = createPrioritySelect(todo.priority, true);
-                const todoExpandedActions = document.createElement("div");
-                todoExpandedActions.classList.add("todo-expanded-actions");
-                const todoProject = document.createElement("select");
-                todoProject.classList.add("project-select");
-                todoProject.id = "todo-project2";
-                todoProject.disabled = true;
 
-                const editBtnContainer = document.createElement("div");
-                editBtnContainer.classList.add("edit-btn-container");
-                const backBtn = document.createElement("button");
-                backBtn.classList.add("back-btn");
-                backBtn.type = "button";
-                backBtn.textContent = "Back";
-                const editButton = document.createElement("button");
-                editButton.classList.add("edit-btn");
-                editButton.type = "button";
-                editButton.textContent = "Edit";
-                const saveButton = document.createElement("button");
-                saveButton.type = "submit";
-                saveButton.textContent = "Save";
-                saveButton.classList.add("edit-btn", "hidden");
-
-                listItem.appendChild(todoForm);
-                todoForm.appendChild(todoExtended);
-                todoExtended.appendChild(todoTitleExpanded);
-                todoExtended.appendChild(todoDescription);
-                todoExtended.appendChild(todoOptions);
-                todoExtended.appendChild(todoExpandedActions);
-                todoOptions.appendChild(firstLabel);
-                firstLabel.appendChild(todoLabel);
-                firstLabel.appendChild(todoDate);
-                todoOptions.appendChild(secondLabel);
-                secondLabel.appendChild(todoLabel2);
-                secondLabel.appendChild(selectTodoPriority);
-                todoExpandedActions.appendChild(todoProject);
-                todoExpandedActions.appendChild(editBtnContainer);
-                editBtnContainer.appendChild(backBtn);
-                editBtnContainer.appendChild(editButton);
-                editBtnContainer.appendChild(saveButton);
-                populateProjectOptions();
-                todoProject.value = projectId;
+                const { todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn } = renderExpandedTodoView(listItem, todo, projectId);               
 
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
