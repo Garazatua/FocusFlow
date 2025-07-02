@@ -247,7 +247,8 @@
     min-width: 0;
   }
   .sub {
-    margin-left: 1rem;
+    margin-left: 2rem;
+    border-bottom: 1px solid var(--clr-project-gray);
   }
   .todo:hover{
     cursor: pointer;
@@ -415,8 +416,15 @@ background-color: #c3392c;
     padding-top: 1rem ; 
     display: flex;
     justify-content: space-between;
-
  }
+
+ .subtask-expanded-actions{
+  margin-top: 1rem;
+  border-top: 1px solid var(--clr-project-gray);
+  padding-top: 1rem ; 
+  display: flex;
+  justify-content: flex-end;
+}
 
 #create-todo-dialog {
     border: none;

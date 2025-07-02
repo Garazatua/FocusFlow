@@ -3,6 +3,7 @@ import storage from './storage.js';
 import currentId from './currentId.js';
 import {format, parse, addDays} from 'date-fns';
 import todoManager from './todoManager.js';
+import createSubtask from './subtask.js';
 import createTodo from './todo.js';
 
 const dom = (function() {   
@@ -50,7 +51,7 @@ const dom = (function() {
         return input;
     }
 
-    function renderExpandedTodoView(listItem, todo, projectId, isEditable = false) {
+    function renderExpandedTodoView(listItem, todo, projectId, isEditable = false, isSubtask = false, isSubtaskForm = false) {
         listItem.innerHTML = "";
         listItem.classList.remove("todo");
     
@@ -141,6 +142,17 @@ const dom = (function() {
             editButton.classList.add("hidden");
             saveButton.classList.remove("hidden");
         }
+        if (isSubtask){
+            todoProject.classList.add("hidden");
+            todoExpandedActions.classList.remove("todo-expanded-actions");
+            todoExpandedActions.classList.add("subtask-expanded-actions");
+        }
+
+        if(isSubtaskForm){
+            todoForm.reset();
+            todoTitleExpanded.placeholder = "Subtask Title";
+            todoDescription.placeholder = "Subtask Description"
+        }
     
     
         return {
@@ -156,7 +168,7 @@ const dom = (function() {
         };
     }
     
-    function createTodoListItem(todo, projectId) {
+    function createTodoListItem(todo, projectId, isSubtask = false) {
         const listItem = document.createElement("li");
         listItem.classList.add("todo");
     
@@ -195,7 +207,7 @@ const dom = (function() {
         addBtn.setAttribute("viewBox", "0 0 24 24");
         addBtn.innerHTML = `<path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />`;
         addBtn.classList.add("todo-action", "hidden");
-    
+
         const deleteBtn = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         deleteBtn.setAttribute("viewBox", "0 0 24 24");
         deleteBtn.innerHTML = `<path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />`;
@@ -214,91 +226,32 @@ const dom = (function() {
         todoActions.appendChild(editBtn);
         todoActions.appendChild(addBtn);
         todoActions.appendChild(deleteBtn);
-    
-        return { listItem, editBtn, addBtn, deleteBtn, priority, checkSvg };
-    }
-
-    function renderCompletedPage(){
-        const title = document.querySelector("#current-view-title");
-        const addTask = document.querySelector("#add-task-main-btn");
-        addTask.classList.add("hidden");
-        title.textContent = "";
-        title.textContent = "Tasks completed";
-        const content = document.querySelector("#todo-list");
-        content.innerHTML = "";
-        const projects = projectManager.getAllProjects();
         
-        projects.forEach(project => {
-            const todos = project.todos;
-            todos.forEach(todo => {
-                if (!todo.completed) {
-                    return;
-                }
-                else if (todo.completed) {
-                    const listItem = document.createElement("li");
-                    listItem.classList.add("completed-todo");
-                    const todoLeft = document.createElement("div");
-                    todoLeft.classList.add("todo-left");
-                    const userSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    userSvg.setAttribute("viewBox", "0 0 24 24");
-                    userSvg.setAttribute("width", "3rem");
-                    userSvg.innerHTML = `<path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4M11,6A2,2 0 0,0 9,8A2,2 0 0,0 11,10A2,2 0 0,0 13,8A2,2 0 0,0 11,6M11,13C11.68,13 12.5,13.09 13.41,13.26L11.74,14.93L11,14.9C8.03,14.9 4.9,16.36 4.9,17V18.1H11.1L13,20H3V17C3,14.34 8.33,13 11,13Z" />`;
-                    const todoTexts = document.createElement("div");
-                    todoTexts.classList.add("todo-texts");
-                    const todoTitle = document.createElement("p");
-                    todoTitle.classList.add("todo-title");
-                    todoTitle.textContent = "You completed a task: ";
-                    const completedTask = document.createElement("span");
-                    completedTask.classList.add("completed-task");
-                    completedTask.textContent = todo.title;
-                    const todoProject = document.createElement("p");
-                    todoProject.classList.add("todo-date");
-                    todoProject.textContent = `Project: ${project.name}`;
-
-                    content.appendChild(listItem);
-                    listItem.appendChild(todoLeft);
-                    todoLeft.appendChild(userSvg);
-                    todoLeft.appendChild(todoTexts);
-                    todoTexts.appendChild(todoTitle);
-                    todoTitle.appendChild(completedTask);
-                    todoTexts.appendChild(todoProject);
-
-                }
-                else return;
-            });
+        priority.addEventListener("mouseenter", () =>{
+            checkSvg.classList.remove("hidden");
         });
-    };
 
-    function renderTodo(todo, projectId){
-        const content = document.querySelector("#todo-list");
-        if (!todo.completed){
-            const { listItem, editBtn, addBtn, deleteBtn, priority, checkSvg } = createTodoListItem(todo, projectId);
-            content.appendChild(listItem);
+        priority.addEventListener("mouseleave", () => {
+            checkSvg.classList.add("hidden");   
+        });
 
-            priority.addEventListener("mouseenter", () =>{
-                checkSvg.classList.remove("hidden");
-            });
+        listItem.addEventListener("mouseenter", () => {
+            editBtn.classList.remove("hidden");
+            if(!isSubtask) addBtn.classList.remove("hidden");
+            deleteBtn.classList.remove("hidden");
+        });
 
-            priority.addEventListener("mouseleave", () => {
-                checkSvg.classList.add("hidden");   
-            });
+        listItem.addEventListener("mouseleave", () => {
+            editBtn.classList.add("hidden");
+            addBtn.classList.add("hidden");
+            deleteBtn.classList.add("hidden");
+        });
 
+        if (!isSubtask){
             priority.addEventListener('click', (event) => {
                 event.stopPropagation();
                 todoManager.toggleCompleted(todo.id, projectId);
                 renderProjectPage(projectId);
-            });
-
-            listItem.addEventListener("mouseenter", () => {
-                editBtn.classList.remove("hidden");
-                addBtn.classList.remove("hidden");
-                deleteBtn.classList.remove("hidden");
-            });
-
-            listItem.addEventListener("mouseleave", () => {
-                editBtn.classList.add("hidden");
-                addBtn.classList.add("hidden");
-                deleteBtn.classList.add("hidden");
             });
 
             deleteBtn.addEventListener("click", (event) => { 
@@ -307,19 +260,24 @@ const dom = (function() {
                 renderProjectPage(projectId);
             });
 
+            addBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                renderSubtaskForm(todo, listItem, projectId);
+            });
+
             let isEditing = false;
             editBtn.addEventListener("click", (event) => {
                 event.stopPropagation();
                 isEditing = true;
                 const {todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn} = renderExpandedTodoView(listItem, todo, projectId, true);
-
+    
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
                     todoForm.reset();
                     renderProjectPage(projectId);
                 });
-
-
+    
+    
                 todoForm.addEventListener("submit", (event) => {
                     event.preventDefault();
                     const title = todoTitleExpanded.value;
@@ -341,19 +299,20 @@ const dom = (function() {
                 });
             
             });
-      
+
+
             listItem.addEventListener("click", (event) => {
                 event.stopPropagation();
                 if (isEditing) return;
-
+    
                 const { todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn } = renderExpandedTodoView(listItem, todo, projectId);               
-
+    
                 backBtn.addEventListener("click", () => {
                     isEditing = false;
                     todoForm.reset();
                     renderProjectPage(projectId);
                 });
-
+    
                 editButton.addEventListener("click", (event) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -368,7 +327,7 @@ const dom = (function() {
                     editButton.classList.add("hidden");
                     saveButton.classList.remove("hidden");
                 });
-
+    
                 todoForm.addEventListener("submit", (event) => {
                     event.preventDefault();
                     const title = todoTitleExpanded.value;
@@ -391,6 +350,232 @@ const dom = (function() {
                     renderProjectPage(projectId);
                 });
             });
+        }
+
+        else {
+            listItem.classList.add("sub");
+            const parentTodoId = todoManager.getParentTodoId(todo.id, projectId);
+            deleteBtn.addEventListener("click", (event) => { 
+                event.stopPropagation();
+                todoManager.deleteTodo(todo.id, projectId, parentTodoId );
+                renderProjectPage(projectId);
+            });
+            priority.addEventListener('click', (event) => {
+                event.stopPropagation();
+                todoManager.toggleCompleted(todo.id, projectId, parentTodoId);
+                renderProjectPage(projectId);
+            });
+
+            let isEditing = false;
+            editBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                isEditing = true;
+                const {todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn} = renderExpandedTodoView(listItem, todo, projectId, true, true);
+    
+                backBtn.addEventListener("click", () => {
+                    isEditing = false;
+                    todoForm.reset();
+                    renderProjectPage(projectId);
+                });
+    
+    
+                todoForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const title = todoTitleExpanded.value;
+                    const description = todoDescription.value;
+                    const rawData = todoDate.value;
+                    const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+                    const priority = selectTodoPriority.value;
+                    const newData = {
+                        title: title,
+                        description: description,
+                        dueDate: dueDate,
+                        priority: priority,
+                    };                    
+                    todoManager.editTodo(todo.id, projectId, newData, parentTodoId);
+                    isEditing = false;
+                    renderProjectPage(projectId);
+                });
+            
+            });
+
+            listItem.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (isEditing) return;
+    
+                const { todoForm, todoTitleExpanded, todoDescription, todoDate, selectTodoPriority, todoProject, editButton, saveButton, backBtn } = renderExpandedTodoView(listItem, todo, projectId, false, true);               
+    
+                backBtn.addEventListener("click", () => {
+                    isEditing = false;
+                    todoForm.reset();
+                    renderProjectPage(projectId);
+                });
+    
+                editButton.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    todoTitleExpanded.disabled = false;
+                    todoDescription.disabled = false;
+                    todoDate.disabled = false;
+                    todoDate.min = validateTodoForm();
+                    selectTodoPriority.disabled = false;
+                    selectTodoPriority.value = todo.priority;
+                    todoProject.disabled = false;
+                    isEditing = true;
+                    editButton.classList.add("hidden");
+                    saveButton.classList.remove("hidden");
+                });
+    
+                todoForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const title = todoTitleExpanded.value;
+                    const description = todoDescription.value;
+                    const rawData = todoDate.value;
+                    const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+                    const priority = selectTodoPriority.value;
+                    const newData = {
+                        title: title,
+                        description: description,
+                        dueDate: dueDate,
+                        priority: priority,
+                    };                    
+                    todoManager.editTodo(todo.id, projectId, newData, parentTodoId);
+                    isEditing = false;
+                    editButton.classList.remove("hidden");
+                    saveButton.classList.add("hidden");
+                    renderProjectPage(projectId);
+                });
+            });
+        }
+        return listItem;
+    }
+
+    function renderSubtaskForm(todo, listItem, projectId) {
+        const subtaskContainer = document.createElement("div");
+        subtaskContainer.classList.add("subtask-form-container", "sub");
+    
+        const {
+            todoForm,
+            todoTitleExpanded,
+            todoDescription,
+            todoDate,
+            selectTodoPriority,
+            todoProject,
+            editButton,
+            saveButton,
+            backBtn
+        } = renderExpandedTodoView(subtaskContainer, todo, projectId, true, true, true)
+    
+    
+        backBtn.addEventListener("click", () => {
+            subtaskContainer.remove();
+        });
+    
+        todoForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+    
+            const title = todoTitleExpanded.value;
+            const description = todoDescription.value;
+            const rawData = todoDate.value;
+            const dueDate = parse(rawData, "yyyy-MM-dd", new Date());
+            const priority = selectTodoPriority.value;
+    
+            const subtask = createSubtask(title, description, dueDate, priority);
+    
+            todoManager.addSubtask(todo.id, projectId, subtask);
+            subtaskContainer.remove();
+            console.log(todo);
+            renderProjectPage(projectId);
+        });
+    
+        listItem.insertAdjacentElement("afterend", subtaskContainer);
+    }
+
+    function renderCompletedTask(todo, project, parentTodo = null){
+        const listItem = document.createElement("li");
+        listItem.classList.add("completed-todo");
+        const todoLeft = document.createElement("div");
+        todoLeft.classList.add("todo-left");
+        const userSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        userSvg.setAttribute("viewBox", "0 0 24 24");
+        userSvg.setAttribute("width", "3rem");
+        userSvg.innerHTML = `<path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4M11,6A2,2 0 0,0 9,8A2,2 0 0,0 11,10A2,2 0 0,0 13,8A2,2 0 0,0 11,6M11,13C11.68,13 12.5,13.09 13.41,13.26L11.74,14.93L11,14.9C8.03,14.9 4.9,16.36 4.9,17V18.1H11.1L13,20H3V17C3,14.34 8.33,13 11,13Z" />`;
+        const todoTexts = document.createElement("div");
+        todoTexts.classList.add("todo-texts");
+        const todoTitle = document.createElement("p");
+        todoTitle.classList.add("todo-title");
+        todoTitle.textContent = "You completed a task: ";
+        const completedTask = document.createElement("span");
+        completedTask.classList.add("completed-task");
+        completedTask.textContent = todo.title;
+        const todoProject = document.createElement("p");
+        todoProject.classList.add("todo-date");
+        todoProject.textContent = parentTodo ?  `Main Task: ${parentTodo.title}`: `Project: ${project.name}`;
+
+        listItem.appendChild(todoLeft);
+        todoLeft.appendChild(userSvg);
+        todoLeft.appendChild(todoTexts);
+        todoTexts.appendChild(todoTitle);
+        todoTitle.appendChild(completedTask);
+        todoTexts.appendChild(todoProject);
+
+        return listItem;
+    }
+    function renderCompletedPage(){
+        const title = document.querySelector("#current-view-title");
+        const addTask = document.querySelector("#add-task-main-btn");
+        addTask.classList.add("hidden");
+        title.textContent = "";
+        title.textContent = "Tasks completed";
+        const content = document.querySelector("#todo-list");
+        content.innerHTML = "";
+        const projects = projectManager.getAllProjects();
+        
+        projects.forEach(project => {
+            const todos = project.todos;
+            todos.forEach(todo => {
+                if (!todo.completed) {
+                    const subTasks = todo.subTasks;
+                    if (!subTasks) return;
+                    subTasks.forEach(subtask => {
+                        if (!subtask.completed) return;
+                        else {
+                            const completedSubtask = renderCompletedTask(subtask, project, todo);
+                            content.appendChild(completedSubtask);
+                        }
+                    });
+                }
+                else if (todo.completed) {
+                    const completedTask = renderCompletedTask(todo, project)
+                    content.appendChild(completedTask);
+                    const subTasks = todo.subTasks;
+                    if (!subTasks) return;
+                    subTasks.forEach(subtask => {
+                        if (!subtask.completed) return;
+                        else {
+                            const completedSubtask = renderCompletedTask(subtask, project, todo);
+                            content.appendChild(completedSubtask);
+                        }
+                    });
+                }
+                else return;
+            });
+        });
+    };
+
+    function renderTodo(todo, projectId){
+        const content = document.querySelector("#todo-list");
+        if (!todo.completed){
+            const listItem = createTodoListItem(todo, projectId);
+            content.appendChild(listItem);
+            if (todo.subTasks && todo.subTasks.length > 0){
+                todo.subTasks.forEach(subtask => {
+                    if (!subtask.completed){
+                        const subItem = createTodoListItem(subtask, projectId, true);
+                        content.appendChild(subItem);
+                    }
+                });
+            }
         }
     };
     function renderProjects(){
