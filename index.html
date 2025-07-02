@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>FocusFlow  </title>
+<script defer src="main.js"></script></head>
+<body>
+    <div id="app">
+        <aside id="sidebar">
+          <h1>FocusFlow</h1>
+      
+          <button id="add-task-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg> Add task</button>
+      
+          <nav>
+            <button class="tab btn projects active" data-id="inbox" id="inbox-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,15H15A3,3 0 0,1 12,18A3,3 0 0,1 9,15H5V5H19M19,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg>Inbox</button>
+            <button class="tab btn projects" data-id="completed" id="completed-btn"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z" /></svg> Completed</button>
+          </nav>
+      
+          <h2>My Projects</h2>
+          <ul id="project-list"></ul> 
+      
+          <button id="add-project-btn" class="btn"><svg id="add-project-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg> Add a Project</button>
+
+            <form id="create-project" class="hidden">
+                <input type="text" id="name" placeholder="My Project" required/>
+                <div>
+                    <button type="button" id="cancel-project-btn">Cancel</button>
+                    <button type="submit">Add</button>
+                </div>
+            </form>
+        </aside>
+
+        <main id="main">
+            <div id="main-content">
+                <h2 id="current-view-title"></h2>
+                <ul id="todo-list">
+                </ul> 
+                <button id="add-task-main-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>Add Task</button>
+            </div>
+        </main>
+    </div>
+
+    <dialog id="create-todo-dialog" >
+    <form id="create-todo" class="todo-form">
+      <div class="todo-extended">
+        <textarea class="todo-title-expanded" id="todo-title" placeholder="Title" required></textarea>
+        <textarea class="todo-description" id="todo-description" placeholder="Description"></textarea>
+
+        <div class="todo-options">
+          <label > 
+            <span class="todo-label">Due:</span>
+            <input type="date" id="todo-date" class="todo-date" required/>
+          </label>
+          <label > 
+            <span class="todo-label">Priority:</span>
+            <select id="todo-priority" >
+              <option value="low"> 🟢 Low </option>
+              <option value="medium">🟡 Medium</option>
+              <option value="high"> 🔴 High </option>
+            </select>
+          </label>
+        </div>
+
+        <div class="todo-expanded-actions">
+          <select id="todo-project" class="project-select">
+            <!-- Esto lo vamos a poblar con JS -->
+        </select>
+        <div class="edit-btn-container">
+          <button class="cancel-btn"type="button" id="close-task-form">Cancel</button>
+          <button class="save-btn"type="submit">Add Task</button>
+        </div>
+        </div>
+      </div>
+    </form>
+    </dialog>
+</body>
+</html>
