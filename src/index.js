@@ -8,10 +8,6 @@ import todoManager from "./todoManager.js";
 import storage from './storage.js';
 
 storage.loadProjects();
-dom.populateProjectOptions();
-
-console.log("Proyectos cargados:", projectManager.getAllProjects());
-
 if (projectManager.getAllProjects().length === 0) {
   const inbox = createProject("Inbox");
   projectManager.addProject(inbox);
@@ -22,6 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const inboxId = projects[0].id;
   dom.renderProjectPage(inboxId);
 });
+
+dom.populateProjectOptions();
+
+console.log("Proyectos cargados:", projectManager.getAllProjects());
+
+
 
 document.addEventListener("DOMContentLoaded", formHandler.init);
 document.addEventListener("DOMContentLoaded", dom.renderProjects());
